@@ -1,0 +1,6 @@
+dist/
+debug/
+build/
+disassembly/
+src/test_module.c
+program_flow.txt
