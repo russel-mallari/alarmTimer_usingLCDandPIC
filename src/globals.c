@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
 volatile int8_t seconds;
 volatile uint8_t minutes;
 volatile uint8_t hours;
@@ -58,4 +57,3 @@ volatile bool sleepFlag;
 
 volatile uint8_t alarmFlag_1;
 
-//volatile uint8_t alarmFlag_1;

@@ -128,9 +128,7 @@ int main(void)
             }
         }
         
-        
         // sleep function
-        
         if(sleepFlag == 1)
         {
             disableInterrupt();
@@ -153,15 +151,12 @@ int main(void)
         }
         
         
-        
         if(isPressed(&PORTA, STOP_RESUME_PIN)) {
             ++stopResumeFlag;
             if(stopResumeFlag == 2) {
                 stopResumeFlag = STOP_MODE;
             }
         }
-        
-        
         
         
         
@@ -411,10 +406,8 @@ int main(void)
             
             else if(subMode == RUN_MODE) {
                 if(subMode_previous != subMode) {
-                    // TMR0H = TIMER_REG_HIGH_BYTE; // load timer registers  
                     TMR0H = TIMER_REG_HIGH_BYTE;
                     TMR0L = TIMER_REG_LOW_BYTE;
-                    // TMR0L = TIMER_REG_LOW_BYTE; 
                     setBit(T0CON0, 7);   // enable timer
                     clearBit(PIR0, 5);  // clear flag
                     setBit(PIE0, 5); // enable timer0 interrupt
@@ -436,16 +429,13 @@ int main(void)
                     updateClock = 0;
                 }
                 extractDigits(minutes, hours);
-                //updateDigits();
                 
                 if(stopResumeFlag == STOP_MODE) {
                     stopFlag = 1;
-                    //INTCONbits.TMR0IF = 0;
                     clearBit(PIR0, 5);  // clear flag
                 }
                 else if(stopResumeFlag == RESUME_MODE) {
                     stopFlag = 0;
-                    //INTCONbits.TMR0IF = 0;
                     clearBit(PIR0, 5);  // clear flag
                 }
                 
@@ -455,7 +445,6 @@ int main(void)
                     ledState = 1;
                     alarmFlag_1 = 0;
                     while(stopResumeFlag == RESUME_MODE) {
-                        //LATCbits.LATC2 = ledState;
                         if(ledState == 1)
                         {
                             PWM_on(BUZZER);
@@ -484,7 +473,6 @@ int main(void)
                         }
                     }
                     PWM_off(BUZZER);
-                    //LATCbits.LATC2 = 0;
                     stopFlag = 0;
                     stopResumeFlag = RESUME_MODE;  
                 }    
@@ -534,7 +522,6 @@ int main(void)
                 
                 if(isPressed(&PORTB, 6))
                 {
-                    
                     if(save_recall == SAVE)
                     {
                         TX_word("7890");
@@ -590,7 +577,6 @@ int main(void)
                         
                         if(save_recall == RECALL)
                         {
-                            
                             setMinutesCtUp_temp = EEPROM_read(saved_pointer);
                             ++saved_pointer;
                             setSecondsCtUp_temp = EEPROM_read(saved_pointer);
@@ -612,7 +598,6 @@ int main(void)
                                 }
                                 
                                 
-                            
                                 if(isPressed(&PORTA, 4)) 
                                 {
                                     saved_pointer = saved_pointer + 1;
@@ -626,10 +611,8 @@ int main(void)
                                     
                                     extractDigits(setSecondsCtUp_temp, setMinutesCtUp_temp);
                                     updateDigits();
-                                    
                                 }
                                 
-                            
                             
                                 if(isPressed(&PORTB, 3)) 
                                 {
@@ -644,8 +627,7 @@ int main(void)
                                     
                                     extractDigits(setSecondsCtUp_temp, setMinutesCtUp_temp);
                                     updateDigits();
-                                }
-                                
+                                } 
                             }
        
                             if(save_recall == RECALL)
@@ -657,7 +639,6 @@ int main(void)
                     }
                 }
                
-        
                 // check run/ok button
                 if(isPressed(&PORTB, 4))
                 {
@@ -824,17 +805,16 @@ int main(void)
                 
                 // if set mode, just display the set time
                // if reset mode, display 00.00
-               if(subMode == RESET_MODE)
-               {
+                if(subMode == RESET_MODE)
+                {
                    setSecondsCtDown = 0;
                    setMinutesCtDown = 0;
                    subMode = SET_MODE;  // Rollback to set mode. If not, the display will always be 00.00
-               }
-               else if(subMode == SET_MODE)
-               {
+                }
+                else if(subMode == SET_MODE)
+                {
                    ;    // do nothing because the default is just display the set time
-               }
-                
+                }
                 
                 // check run/ok button
                 if(isPressed(&PORTB, 4))
@@ -856,7 +836,6 @@ int main(void)
                         digit_place = 4;
                     }
                 }
-                
                 
                 
                 if(encoderCounter_ClockWise >= 2) {

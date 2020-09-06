@@ -4,15 +4,11 @@
 #include "defines.h"
 #include "UART.h"
 
-
-
-
 void timer0_setup(void) {
     
     clearBit(T0CON0, 7);    //disable timer
     setBit(T0CON0, 4);      // 16 bit timer
     writeBitField(T0CON0, 0b00001111, 0);    // no postscaler
-    
     
     TMR0H = TIMER_REG_HIGH_BYTE;
     TMR0L = TIMER_REG_LOW_BYTE;

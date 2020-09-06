@@ -126,7 +126,5 @@ void updateDigits(void) {
         }
     
         TX_char('\0');
-    
-    
 }
 

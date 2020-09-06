@@ -5,7 +5,6 @@
 void TX_char(uint8_t data) {
     TX1REG = data;
     while(checkBit(PIR3, 4) == 0);
-    
 }
 
 void TX_word(uint8_t *word){
@@ -23,7 +22,6 @@ void TX_word(uint8_t *word){
 */
 void TX_init(uint32_t baudRate, uint32_t OscFreq) {      
     SP1BRGL = (OscFreq / (4 * baudRate)) - 1;     
-    //SP1BRGL = 25;
     SP1BRGH = 0;
     RC6PPS = 0x0D;
     setBit(TX1STA, 2);      // BRG HIGH SPEED
@@ -34,9 +32,5 @@ void TX_init(uint32_t baudRate, uint32_t OscFreq) {
     clearBit(ANSELC, 6);    // set as digital I/O
     setBit(TX1STA, 5);  // TX enable
     clearBit(PIR3, 4);
-    //TXSTAbits.BRGH = 1;
-    //BAUD1CONbits.BRG16 = 1;
-    //TXSTAbits.SYNC = 0;
-    //
 }
 

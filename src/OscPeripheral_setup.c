@@ -2,10 +2,6 @@
 #include <stdint.h>
 #include "macros.h"
 
-/*
-    The  
- 
- */
 void HFIntOsc_init(void) {
     while(checkBit(OSCSTAT, 6) == 0)
         ;   // check if HFINTOSC is ready
@@ -73,7 +69,5 @@ void startUp_init(void) {
     INTPPS = 0x0A;
     INTCONbits.INTEDG = 0; // falling edge
     PIR0bits.INTF = 0;
-    PIE0bits.INTE = 1;
-    
-    
+    PIE0bits.INTE = 1;   
 }
