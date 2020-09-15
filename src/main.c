@@ -1,5 +1,6 @@
 #include <xc.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "configBits.h"
 #include "defines.h"
@@ -40,15 +41,13 @@ int main(void)
     controlColon = ':';
     controlPoint = '.';
 
-    clearBit(LATC, 2);
+    clearBit(LATC, DEBUG_LED_PIN);
     
     uint8_t digit_place;
     digit_place = 1;
     
     uint8_t BCDtoDecimal_high;
     uint8_t BCDtoDecimal_low;
-    
-    uint8_t hours1;
     
     uint8_t rotateCounter = 0;
     
@@ -57,7 +56,7 @@ int main(void)
     uint8_t setClockFlag = SET_ALARM;
     uint8_t ok_counter = 0;
     
-    uint8_t exceed_24hr = 0;
+    uint8_t exceed_24hr = FALSE;
    
     uint8_t hour_format = FORMAT_24;
     
@@ -66,7 +65,7 @@ int main(void)
     uint8_t duty_cycle = 60;
     uint8_t duty_cycle_temp = 60;
     
-    bool previous_sleepFlag = 0;
+    bool previous_sleepFlag = FALSE;
     
     uint8_t save_recall = SAVE;
     
@@ -74,17 +73,17 @@ int main(void)
     
     while(1) {
             
-        if(updateDisplay == 1) {
+        if(updateDisplay == TRUE) {
             updateDigits();
-            updateDisplay = 0;
+            updateDisplay = FALSE;
         }
         
         
-        if(checkBit(PORTC, FORMAT_PIN) == FORMAT_24)
+        if(checkBit(PORTC, HOUR_FORMAT_PIN) == FORMAT_24)
         {
             hour_format = FORMAT_24;
         }
-        else if(checkBit(PORTC, FORMAT_PIN) == FORMAT_12)
+        else if(checkBit(PORTC, HOUR_FORMAT_PIN) == FORMAT_12)
         {
             hour_format = FORMAT_12;
         }
@@ -101,7 +100,7 @@ int main(void)
                 mode_current = CLOCK_MODE;
             }
         }
-        if(isPressed(&PORTC, 3))
+        if(isPressed(&PORTC, ADJUST_SOUND_PIN))
         {
             duty_cycle_temp = duty_cycle;
             TX_word("poot");
@@ -110,8 +109,8 @@ int main(void)
         }
         if(!(mode_current == ADJUST_MODE))
         {
-            PWM_off(BUZZER);
-            PWM_dutyCycle(BUZZER, duty_cycle);
+            PWM_off(BUZZER_PIN);
+            PWM_dutyCycle(BUZZER_PIN, duty_cycle);
         }
         
         
@@ -129,7 +128,7 @@ int main(void)
         }
         
         // sleep function
-        if(sleepFlag == 1)
+        if(sleepFlag == TRUE)
         {
             disableInterrupt();
             TX_char('x');
@@ -143,7 +142,7 @@ int main(void)
             SLEEP();
             previous_sleepFlag = sleepFlag;
         }
-        else if((previous_sleepFlag == 1) && (sleepFlag == 0 ))
+        else if((previous_sleepFlag == TRUE) && (sleepFlag == FALSE ))
         {
             // transmit the wakeup characters
             previous_sleepFlag = sleepFlag;
@@ -182,9 +181,9 @@ int main(void)
                 }
                 subMode_previous = subMode;
                 
-                while((ok_counter == 1) && (isPressed(&PORTB, 4) == 0))
+                while((ok_counter == 1) && (isPressed(&PORTB, OK_PIN) == 0))
                 {
-                    if(isPressed(&PORTB, 5))
+                    if(isPressed(&PORTB, SET_CLOCK_ALARM_PIN))
                     {
                         ++setClockFlag;
                         if(setClockFlag == 2)
@@ -195,13 +194,11 @@ int main(void)
                         
                     if(setClockFlag == SET_ALARM)
                     {
-                        TX_word("looc");
-                        
+                        TX_word("looc"); 
                     }
                     else if(setClockFlag == SET_CLOCK)
                     {
-                        TX_word("cool");
-                        
+                        TX_word("cool"); 
                     }     
                 }
                 ok_counter = 2;
@@ -221,33 +218,33 @@ int main(void)
                 
                 
                 // check run/ok button
-                if(isPressed(&PORTB, 4))
+                if(isPressed(&PORTB, OK_PIN))
                 {
                     if(setClockFlag == SET_ALARM)
                     {
-                        if(exceed_24hr == 1)    // disable alarm if set hour is greater than 25
+                        if(exceed_24hr == TRUE)    // disable alarm if set hour is greater than 25
                         {
-                            exceed_24hr = 0;
+                            exceed_24hr = FALSE;
                             clearBit(ALRMCON, 7);   
                         }
-                        else if(exceed_24hr == 0)
+                        else if(exceed_24hr == FALSE)
                         {
                             // if format is 24 hr
                             if(hour_format == FORMAT_24)
                             {
                                 RTCC_setAlarm(decimalToBCD(setHoursClock), decimalToBCD(setMinutesClock));
                                 subMode = RUN_MODE;
-                                ALARM_DONE = 0;
+                                ALARM_DONE = FALSE;
                                 // run
                             }
                             // else if format is 12 hr
                             else if(hour_format == FORMAT_12)
                             {
                                 
-                                while(isPressed(&PORTB, 4) == 0)
+                                while(isPressed(&PORTB, OK_PIN) == 0)
                                 {
                                 // ask if AM or PM
-                                    if(isPressed(&PORTA, 4) || isPressed(&PORTB, 3))
+                                    if(isPressed(&PORTA, LEFT_MOVEMENT_PIN) || isPressed(&PORTB, RIGHT_MOVEMENT_PIN))
                                     {
                                         ++am_pm;
                                         if(am_pm == 2)
@@ -273,7 +270,7 @@ int main(void)
                                 }
                                 RTCC_setAlarm(decimalToBCD(setHoursClock), decimalToBCD(setMinutesClock));
                                 subMode = RUN_MODE;
-                                ALARM_DONE = 0;
+                                ALARM_DONE = FALSE;
                             }  
                         }
                     }
@@ -282,10 +279,10 @@ int main(void)
                         if(hour_format == FORMAT_12)
                             {
                                 
-                                while(isPressed(&PORTB, 4) == 0)
+                                while(isPressed(&PORTB, OK_PIN) == 0)
                                 {
                                 // ask if AM or PM
-                                    if(isPressed(&PORTA, 4) || isPressed(&PORTB, 3))
+                                    if(isPressed(&PORTA, LEFT_MOVEMENT_PIN) || isPressed(&PORTB, RIGHT_MOVEMENT_PIN))
                                     {
                                         ++am_pm;
                                         if(am_pm == 2)
@@ -319,14 +316,14 @@ int main(void)
                 }
                 
                 //get the digit place from the switch
-                if(isPressed(&PORTA, 4)) {
+                if(isPressed(&PORTA, LEFT_MOVEMENT_PIN)) {
                     ++digit_place;
                     if(digit_place == 5) {
                         digit_place = 1;
                     }
                 }
              
-                if(isPressed(&PORTB, 3)) {
+                if(isPressed(&PORTB, RIGHT_MOVEMENT_PIN)) {
                     --digit_place;
                     if(digit_place == 0 || digit_place > 4) {   // if passed the 1st digit or underflow, make 4th digit
                         digit_place = 4;
@@ -390,7 +387,7 @@ int main(void)
                 {
                     if(setHoursClock > 24){
                         setHoursClock = 24;
-                        exceed_24hr = 1;
+                        exceed_24hr = TRUE;
                     }
                 }
                 else if(hour_format == FORMAT_12)
@@ -414,44 +411,44 @@ int main(void)
                     stopResumeFlag = RESUME_MODE;
                     seconds = 0;
                     minutes = 0;
-                    stopFlag = 0;
+                    stopFlag = FALSE;
                 
                 }
                 subMode_previous = subMode;
                 
-                if(updateClock == 1) {
+                if(updateClock == TRUE) {
                     minutes = BCDtoDecimal(RTCC_read(&MINUTES));
                     hours = BCDtoDecimal(RTCC_read(&HOURS));
                     if((hour_format == FORMAT_12) && (hours > 12))
                     {
                         hours = hours - 12;
                     }
-                    updateClock = 0;
+                    updateClock = FALSE;
                 }
                 extractDigits(minutes, hours);
                 
                 if(stopResumeFlag == STOP_MODE) {
-                    stopFlag = 1;
+                    stopFlag = TRUE;
                     clearBit(PIR0, 5);  // clear flag
                 }
                 else if(stopResumeFlag == RESUME_MODE) {
-                    stopFlag = 0;
+                    stopFlag = FALSE;
                     clearBit(PIR0, 5);  // clear flag
                 }
                 
                 
-                if(alarmFlag_1 == 1) {
+                if(alarmFlag_1 == TRUE) {
                     
-                    ledState = 1;
-                    alarmFlag_1 = 0;
+                    ledState = TRUE;
+                    alarmFlag_1 = FALSE;
                     while(stopResumeFlag == RESUME_MODE) {
-                        if(ledState == 1)
+                        if(ledState == TRUE)
                         {
-                            PWM_on(BUZZER);
+                            PWM_on(BUZZER_PIN);
                         }
                         else
                         {
-                            PWM_off(BUZZER);
+                            PWM_off(BUZZER_PIN);
                         }
                         
                         minutes = BCDtoDecimal(RTCC_read(&MINUTES));
@@ -459,10 +456,10 @@ int main(void)
                         
                         extractDigits(minutes, hours);
                         
-                        if(updateDisplay == 1)
+                        if(updateDisplay == TRUE)
                         {
                             updateDigits();
-                            updateDisplay = 0;
+                            updateDisplay = FALSE;
                         }
                         
                         if(isPressed(&PORTA, STOP_RESUME_PIN)) {
@@ -472,8 +469,8 @@ int main(void)
                             }
                         }
                     }
-                    PWM_off(BUZZER);
-                    stopFlag = 0;
+                    PWM_off(BUZZER_PIN);
+                    stopFlag = FALSE;
                     stopResumeFlag = RESUME_MODE;  
                 }    
             }
@@ -520,14 +517,14 @@ int main(void)
                 
                
                 
-                if(isPressed(&PORTB, 6))
+                if(isPressed(&PORTB, SAVE_RECALL_PIN))
                 {
                     if(save_recall == SAVE)
                     {
                         TX_word("7890");
-                        while((isPressed(&PORTB, 4) == 0) && (save_recall == SAVE))
+                        while((isPressed(&PORTB, OK_PIN) == 0) && (save_recall == SAVE))
                         {
-                            if(isPressed(&PORTB, 6))
+                            if(isPressed(&PORTB, SAVE_RECALL_PIN))
                             {
                                 ++save_recall;
                             }
@@ -547,9 +544,6 @@ int main(void)
                             }
                             
                             EEPROM_write(7, saved_counter);
-                            LATCbits.LATC2 = 1;
-                            __delay_ms(5);
-                            LATCbits.LATC2 = 0;
                         }
                     }
                     
@@ -560,9 +554,9 @@ int main(void)
                         uint8_t saved_pointer = 1;
                         
                         TX_word("5555");
-                        while((isPressed(&PORTB, 4) == 0) && (save_recall == RECALL))
+                        while((isPressed(&PORTB, OK_PIN) == 0) && (save_recall == RECALL))
                         {
-                            if(isPressed(&PORTB, 6))
+                            if(isPressed(&PORTB, SAVE_RECALL_PIN))
                             {
                                 ++save_recall;
                             }
@@ -585,9 +579,9 @@ int main(void)
                             updateDigits();
                             
                             
-                            while((isPressed(&PORTB, 4) == 0) && (save_recall == RECALL))
+                            while((isPressed(&PORTB, OK_PIN) == 0) && (save_recall == RECALL))
                             {
-                                if(isPressed(&PORTB, 6))
+                                if(isPressed(&PORTB, SAVE_RECALL_PIN))
                                 {
                                     ++save_recall;
                                 }
@@ -598,7 +592,7 @@ int main(void)
                                 }
                                 
                                 
-                                if(isPressed(&PORTA, 4)) 
+                                if(isPressed(&PORTA, LEFT_MOVEMENT_PIN)) 
                                 {
                                     saved_pointer = saved_pointer + 1;
                                     if(saved_pointer > 6)
@@ -614,7 +608,7 @@ int main(void)
                                 }
                                 
                             
-                                if(isPressed(&PORTB, 3)) 
+                                if(isPressed(&PORTB, RIGHT_MOVEMENT_PIN)) 
                                 {
                                     saved_pointer = saved_pointer - 3;
                                      if(saved_pointer > 6)
@@ -640,20 +634,20 @@ int main(void)
                 }
                
                 // check run/ok button
-                if(isPressed(&PORTB, 4))
+                if(isPressed(&PORTB, OK_PIN))
                 {
                     subMode = RUN_MODE;
                 }
                 
                 //get the digit place from the switch
-                if(isPressed(&PORTA, 4)) {
+                if(isPressed(&PORTA, LEFT_MOVEMENT_PIN)) {
                     ++digit_place;
                     if(digit_place == 5) {
                         digit_place = 1;
                     }
                 }
              
-                if(isPressed(&PORTB, 3)) {
+                if(isPressed(&PORTB, RIGHT_MOVEMENT_PIN)) {
                     --digit_place;
                     if(digit_place == 0 || digit_place > 4) {   // if passed the 1st digit or underflow, make 4th digit
                         digit_place = 4;
@@ -729,7 +723,7 @@ int main(void)
                     stopResumeFlag = RESUME_MODE;
                     seconds = 0;
                     minutes = 0;
-                    stopFlag = 0; 
+                    stopFlag = FALSE; 
                 }
                 subMode_previous = subMode;
                 
@@ -738,28 +732,28 @@ int main(void)
                 extractDigits(secondsCopy, minutesCopy);
                 
                 if(stopResumeFlag == STOP_MODE) {
-                    stopFlag = 1;
+                    stopFlag = TRUE;
                   
                     clearBit(PIR0, 5);  // clear flag
                 }
                 else if(stopResumeFlag == RESUME_MODE) {
-                    stopFlag = 0;
+                    stopFlag = FALSE;
                     
                     clearBit(PIR0, 5);  // clear flag
                 }
                 
                 if((secondsCopy == setSecondsCtUp) && (minutesCopy == setMinutesCtUp)) {
-                    stopFlag = 1;
+                    stopFlag = TRUE;
                    
                     while(stopResumeFlag == RESUME_MODE) {
                         
-                        if(ledState == 1)
+                        if(ledState == TRUE)
                         {
-                            PWM_on(BUZZER);
+                            PWM_on(BUZZER_PIN);
                         }
                         else
                         {
-                            PWM_off(BUZZER);
+                            PWM_off(BUZZER_PIN);
                         }
                         updateDigits();     // When stop happened first, it will not display the last number.
                         if(isPressed(&PORTA, STOP_RESUME_PIN)) {
@@ -769,10 +763,10 @@ int main(void)
                             }
                         }
                     }
-                    PWM_off(BUZZER);
+                    PWM_off(BUZZER_PIN);
                     clearBit(PIR0, 5);  // clear flag
                     clearBit(PIE0, 5); // disable timer0 interrupt
-                    stopFlag = 0;
+                    stopFlag = FALSE;
                     subMode = SET_MODE;
                     stopResumeFlag = RESUME_MODE;
                 }
@@ -797,7 +791,7 @@ int main(void)
                     stopResumeFlag = RESUME_MODE;
                     seconds = 0;
                     minutes = 0;
-                    stopFlag = 0;
+                    stopFlag = FALSE;
                 }
                 subMode_previous = subMode;
                 
@@ -817,20 +811,20 @@ int main(void)
                 }
                 
                 // check run/ok button
-                if(isPressed(&PORTB, 4))
+                if(isPressed(&PORTB, OK_PIN))
                 {
                     subMode = RUN_MODE;
                 }
                 
                 //get the digit place from the switch
-                if(isPressed(&PORTA, 4)) {
+                if(isPressed(&PORTA, LEFT_MOVEMENT_PIN)) {
                     ++digit_place;
                     if(digit_place == 5) {
                         digit_place = 1;
                     }
                 }
              
-                if(isPressed(&PORTB, 3)) {
+                if(isPressed(&PORTB, RIGHT_MOVEMENT_PIN)) {
                     --digit_place;
                     if(digit_place == 0 || digit_place > 4) {   // if passed the 1st digit or underflow, make 4th digit
                         digit_place = 4;
@@ -913,12 +907,12 @@ int main(void)
                 
                 
                 if(stopResumeFlag == STOP_MODE) {
-                    stopFlag = 1;
+                    stopFlag = TRUE;
                     
                     clearBit(PIR0, 5);  // clear flag
                 }
                 else if(stopResumeFlag == RESUME_MODE) {
-                    stopFlag = 0;
+                    stopFlag = FALSE;
                     
                     clearBit(PIR0, 5);  // clear flag
                 }
@@ -928,13 +922,13 @@ int main(void)
                 if((secondsCopy == 0) && (minutesCopy == 0)) {
                     while(stopResumeFlag == RESUME_MODE) {
                         
-                        if(ledState == 1)
+                        if(ledState == TRUE)
                         {
-                            PWM_on(BUZZER);
+                            PWM_on(BUZZER_PIN);
                         }
                         else
                         {
-                            PWM_off(BUZZER);
+                            PWM_off(BUZZER_PIN);
                         }
                         
                         updateDigits();
@@ -948,8 +942,8 @@ int main(void)
                     clearBit(PIR0, 5);  // clear flag
                     clearBit(PIE0, 5);  // 
                    
-                    PWM_off(BUZZER); 
-                    stopFlag = 0;
+                    PWM_off(BUZZER_PIN); 
+                    stopFlag = FALSE;
                     subMode = SET_MODE;
                     stopResumeFlag = RESUME_MODE;    
                 }
@@ -960,21 +954,21 @@ int main(void)
             mode_previous = ADJUST_MODE;
            
             
-            if(ledState == 1)
+            if(ledState == TRUE)
             {
-                PWM_on(BUZZER);
+                PWM_on(BUZZER_PIN);
             }
             else
             {
-               PWM_off(BUZZER);
+               PWM_off(BUZZER_PIN);
             }
             
-            if(isPressed(&PORTB, 4))
+            if(isPressed(&PORTB, OK_PIN))
             {
                 duty_cycle = duty_cycle_temp;
-                PWM_off(BUZZER);
+                PWM_off(BUZZER_PIN);
                 mode_current = CLOCK_MODE;
-                PWM_dutyCycle(BUZZER, duty_cycle);
+                PWM_dutyCycle(BUZZER_PIN, duty_cycle);
             }
             
             if(encoderCounter_counterClockWise >= 1)
@@ -995,7 +989,7 @@ int main(void)
                 }
             }
             
-        PWM_dutyCycle(BUZZER, duty_cycle_temp);    
+        PWM_dutyCycle(BUZZER_PIN, duty_cycle_temp);    
             
         }
     }

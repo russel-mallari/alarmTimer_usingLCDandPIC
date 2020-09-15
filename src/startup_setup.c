@@ -20,13 +20,13 @@ void startup_setup(void) {
   
     // ALARM_DONE -> saves the status of alarm when power is cut off
     // If an alarm is not performed before a power cut-off, it will be set again at start-up.
-    if(ALARM_DONE == 0)
+    if(ALARM_DONE == FALSE)
     {
         RTCC_setAlarm(ALRMHR, ALRMMIN);
     }
     
-    PWM_init(BUZZER);
-    PWM_off(BUZZER);
+    PWM_init(BUZZER_PIN);
+    PWM_off(BUZZER_PIN);
     //PWM_init(BACKLIGHT);
     enableInterrupt();
     

@@ -6,7 +6,7 @@
 #include "globals.h"
 #include "UART.h"
 
-void __interrupt() oneSecondUpdate(void) {
+void __interrupt() interrupt_routines(void) {
     
     if(IOCAFbits.IOCAF2 == 1) {
         IOCAFbits.IOCAF2 = 0;
@@ -30,7 +30,7 @@ void __interrupt() oneSecondUpdate(void) {
     
         ++ticksCounter;
         updateDisplay = 1;
-        updateClock = 1;    // read RTC every 250ms
+        updateClock = TRUE;    // read RTC every 250ms
     
         if(ticksCounter == 10) {
             ticksCounter = 0;
@@ -44,7 +44,7 @@ void __interrupt() oneSecondUpdate(void) {
                     controlColon = ':';
                 }
         
-                if((stopFlag == 0) && (subMode == RUN_MODE)) {
+                if((stopFlag == FALSE) && (subMode == RUN_MODE)) {
             
                 }
             }
@@ -56,7 +56,7 @@ void __interrupt() oneSecondUpdate(void) {
                 else
                     controlPoint = ',';
         
-                if((stopFlag == 0) && (subMode == RUN_MODE)) {
+                if((stopFlag == FALSE) && (subMode == RUN_MODE)) {
                     ++seconds;
                     if(seconds == 60) {
                         seconds = 0;
@@ -74,7 +74,7 @@ void __interrupt() oneSecondUpdate(void) {
                 else
                     controlPoint = ',';
         
-                if((stopFlag == 0) && (subMode == RUN_MODE)) {
+                if((stopFlag == FALSE) && (subMode == RUN_MODE)) {
                     if((seconds == 0) && (minutes == 0)) {
                         ;               // do nothing
                     }
@@ -100,11 +100,11 @@ void __interrupt() oneSecondUpdate(void) {
     {
         if(PIR8bits.RTCCIF == 1) {
             PIR8bits.RTCCIF = 0;
-            alarmFlag_1 = 1;
+            alarmFlag_1 = TRUE;
            
             clearBit(ALRMCON, 7);
             PIE8bits.RTCCIE = 1;
-            ALARM_DONE = 1;
+            ALARM_DONE = TRUE;
         }
     }
     

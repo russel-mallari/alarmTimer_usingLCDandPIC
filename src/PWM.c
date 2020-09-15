@@ -6,7 +6,7 @@
 
 void PWM_init(uint8_t pinName)
 {
-    if(pinName == BUZZER)      // BUZZER is on pin RB0. Users CCP1 and TMR2
+    if(pinName == BUZZER_PIN)      // BUZZER is on pin RB0. Users CCP1 and TMR2
     {
         clearBit(ANSELB, 0);
         setBit(TRISB, 0);
@@ -23,7 +23,7 @@ void PWM_init(uint8_t pinName)
         writeBitField(T2CLKCON, 0b00001111, 0b00000001);
         writeBitField(T2CON, 0b01110000, 0);
     }
-    else if(pinName == BACKLIGHT)   // BACKLIGHT is on pin RB1(high current source pin)
+    else if(pinName == BACKLIGHT_OUTPUT_PIN)   // BACKLIGHT is on pin RB1(high current source pin)
     {
         clearBit(ANSELB, 1);
         setBit(TRISB, 1);
@@ -45,12 +45,12 @@ void PWM_init(uint8_t pinName)
 
 //PWM duty cycle
 void PWM_dutyCycle(uint8_t pin, uint8_t duty) {
-    if(pin == BUZZER)
+    if(pin == BUZZER_PIN)
     {
         CCPR1L = duty;
         CCPR1H = 0;
     }
-    else if(pin == BACKLIGHT)
+    else if(pin == BACKLIGHT_OUTPUT_PIN)
     {
         CCPR2L = duty;
         CCPR2H = 0;
@@ -60,13 +60,13 @@ void PWM_dutyCycle(uint8_t pin, uint8_t duty) {
 
 void PWM_off(uint8_t pin)
 {
-    if(pin == BUZZER)
+    if(pin == BUZZER_PIN)
     {
         clearBit(CCP1CON, 7);
         clearBit(T2CON, 7);
         setBit(TRISB, 0);
     }
-    else if(pin == BACKLIGHT)
+    else if(pin == BACKLIGHT_OUTPUT_PIN)
     {
         clearBit(CCP2CON, 7);
         clearBit(T4CON, 7);
@@ -76,7 +76,7 @@ void PWM_off(uint8_t pin)
 
 void PWM_on(uint8_t pin)
 {
-    if(pin == BUZZER)
+    if(pin == BUZZER_PIN)
     {
         clearBit(PIR4, 1);
         setBit(T2CON, 7);
@@ -84,7 +84,7 @@ void PWM_on(uint8_t pin)
         setBit(CCP1CON, 7);
         clearBit(TRISB, 0);
     }
-    else if(pin == BACKLIGHT)
+    else if(pin == BACKLIGHT_OUTPUT_PIN)
     {
         clearBit(PIR4, 3);
         setBit(T4CON, 7);

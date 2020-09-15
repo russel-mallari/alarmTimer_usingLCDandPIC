@@ -4,3 +4,5 @@ build/
 disassembly/
 src/test_module.c
 program_flow.txt
+docu.txt
+Revisions.txt
