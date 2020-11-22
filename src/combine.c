@@ -31,10 +31,10 @@ bool isPressed(uint8_t *regAddress, uint8_t pinNum) {
          __delay_ms(1);
          while(checkBit(*regAddress, pinNum) == 0);
          __delay_ms(1);
-         isReleased = 1;
+         isReleased = TRUE;
     }
     else {
-         isReleased = 0;
+         isReleased = FALSE;
     }
     return isReleased;
 }
@@ -45,7 +45,7 @@ void clock_init(void) {
     stopResumeFlag = RESUME_MODE;
                 
     TX_word("cLoc");
-    __delay_ms(500);
+    __delay_ms(MODE_DISPLAY_DELAY_MS);
                 
     minutesCopy = minutes;
     hoursCopy = hours;
@@ -66,7 +66,7 @@ void countUp_init(void) {
     stopResumeFlag = RESUME_MODE;
     
     TX_word("ctup");
-    __delay_ms(500);
+    __delay_ms(MODE_DISPLAY_DELAY_MS);
 
     extractDigits(setSecondsCtUp, setMinutesCtUp);
     //updateDigits();
@@ -84,7 +84,7 @@ void countDown_init(void) {
     stopResumeFlag = RESUME_MODE;
     
      TX_word("ctdo");
-    __delay_ms(500);
+    __delay_ms(MODE_DISPLAY_DELAY_MS);
 
     extractDigits(setSecondsCtDown, setMinutesCtDown);
     //updateDigits();

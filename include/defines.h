@@ -57,6 +57,7 @@
 
 #define STOP_MODE   0
 #define RESUME_MODE 1
+#define STOP_RESUME_ROLLBACK 2
 
 #define CLOCK_MODE  0
 #define COUNT_UP_MODE 1
@@ -72,6 +73,7 @@
 
 #define SET_ALARM   0
 #define SET_CLOCK   1
+#define SET_ALARM_CLOCK_ROLLBACK 2
 #define ALARM_DONE  VB0GPR
 
 
@@ -80,8 +82,16 @@
 
 #define AM_TIME  0
 #define PM_TIME  1
+#define HOUR_FORMAT_ROLLBACK 2
 
 #define SAVE 0
 #define RECALL 1
+#define SAVE_POINTER_ADDRESS 7
+
+#define DIGIT_ROLLBACK 5
+
+#define MODE_DISPLAY_DELAY_MS   500
+
+
 
 #endif // DEFINES_H

@@ -16,8 +16,6 @@
 #include "EEPROM.h"
 
 
-uint8_t ledStatus = 0;
-
 int main(void) 
 {
     startup_setup();
@@ -71,6 +69,8 @@ int main(void)
     
     uint8_t saved_counter = 0;
     
+    
+    
     while(1) {
             
         if(updateDisplay == TRUE) {
@@ -103,8 +103,7 @@ int main(void)
         if(isPressed(&PORTC, ADJUST_SOUND_PIN))
         {
             duty_cycle_temp = duty_cycle;
-            TX_word("poot");
-            __delay_ms(500);
+            __delay_ms(MODE_DISPLAY_DELAY_MS);
             mode_current = ADJUST_MODE;
         }
         if(!(mode_current == ADJUST_MODE))
@@ -152,7 +151,7 @@ int main(void)
         
         if(isPressed(&PORTA, STOP_RESUME_PIN)) {
             ++stopResumeFlag;
-            if(stopResumeFlag == 2) {
+            if(stopResumeFlag == STOP_RESUME_ROLLBACK) {
                 stopResumeFlag = STOP_MODE;
             }
         }
@@ -186,7 +185,7 @@ int main(void)
                     if(isPressed(&PORTB, SET_CLOCK_ALARM_PIN))
                     {
                         ++setClockFlag;
-                        if(setClockFlag == 2)
+                        if(setClockFlag == SET_ALARM_CLOCK_ROLLBACK)
                         {
                            setClockFlag = SET_ALARM;
                         }
@@ -194,11 +193,11 @@ int main(void)
                         
                     if(setClockFlag == SET_ALARM)
                     {
-                        TX_word("looc"); 
+                        TX_word("aLar"); 
                     }
                     else if(setClockFlag == SET_CLOCK)
                     {
-                        TX_word("cool"); 
+                        TX_word("cloc"); 
                     }     
                 }
                 ok_counter = 2;
@@ -247,7 +246,7 @@ int main(void)
                                     if(isPressed(&PORTA, LEFT_MOVEMENT_PIN) || isPressed(&PORTB, RIGHT_MOVEMENT_PIN))
                                     {
                                         ++am_pm;
-                                        if(am_pm == 2)
+                                        if(am_pm == HOUR_FORMAT_ROLLBACK)
                                         {
                                             am_pm = AM_TIME;
                                         }
@@ -255,11 +254,11 @@ int main(void)
                                     
                                     if(am_pm == AM_TIME)
                                     {
-                                        TX_word("coto");
+                                        TX_word("amm-");
                                     }
                                     else if(am_pm == PM_TIME)
                                     {
-                                         TX_word("poto");
+                                         TX_word("pmm-");
                                     }
                                 // run mode
                                 }
@@ -285,7 +284,7 @@ int main(void)
                                     if(isPressed(&PORTA, LEFT_MOVEMENT_PIN) || isPressed(&PORTB, RIGHT_MOVEMENT_PIN))
                                     {
                                         ++am_pm;
-                                        if(am_pm == 2)
+                                        if(am_pm == HOUR_FORMAT_ROLLBACK)
                                         {
                                             am_pm = AM_TIME;
                                         }
@@ -293,11 +292,11 @@ int main(void)
                                     
                                     if(am_pm == AM_TIME)
                                     {
-                                        TX_word("coto");
+                                        TX_word("amm-");
                                     }
                                     else if(am_pm == PM_TIME)
                                     {
-                                         TX_word("poto");
+                                         TX_word("pmm-");
                                     }
                                 // run mode
                                 }
@@ -318,7 +317,7 @@ int main(void)
                 //get the digit place from the switch
                 if(isPressed(&PORTA, LEFT_MOVEMENT_PIN)) {
                     ++digit_place;
-                    if(digit_place == 5) {
+                    if(digit_place == DIGIT_ROLLBACK) {
                         digit_place = 1;
                     }
                 }
@@ -464,7 +463,7 @@ int main(void)
                         
                         if(isPressed(&PORTA, STOP_RESUME_PIN)) {
                             ++stopResumeFlag;
-                            if(stopResumeFlag == 2) {
+                            if(stopResumeFlag == STOP_RESUME_ROLLBACK) {
                                 stopResumeFlag = STOP_MODE;
                             }
                         }
@@ -502,6 +501,9 @@ int main(void)
                 
                extractDigits(setSecondsCtUp, setMinutesCtUp);
                
+               
+               
+               
                // if set mode, just display the set time
                // if reset mode, display 00.00
                 if(subMode == RESET_MODE)
@@ -516,122 +518,6 @@ int main(void)
                 }
                 
                
-                
-                if(isPressed(&PORTB, SAVE_RECALL_PIN))
-                {
-                    if(save_recall == SAVE)
-                    {
-                        TX_word("7890");
-                        while((isPressed(&PORTB, OK_PIN) == 0) && (save_recall == SAVE))
-                        {
-                            if(isPressed(&PORTB, SAVE_RECALL_PIN))
-                            {
-                                ++save_recall;
-                            }
-                        }
-                        
-                        if(save_recall == SAVE)
-                        {
-                            saved_counter = EEPROM_read(7);
-                            
-                            EEPROM_write(saved_counter, setMinutesCtUp);
-                            ++saved_counter;
-                            EEPROM_write(saved_counter, setSecondsCtUp);
-                            ++saved_counter;
-                            if(saved_counter == 7)
-                            {
-                                saved_counter = 1;
-                            }
-                            
-                            EEPROM_write(7, saved_counter);
-                        }
-                    }
-                    
-                    if(save_recall == RECALL)
-                    {
-                        uint8_t setMinutesCtUp_temp;
-                        uint8_t setSecondsCtUp_temp;
-                        uint8_t saved_pointer = 1;
-                        
-                        TX_word("5555");
-                        while((isPressed(&PORTB, OK_PIN) == 0) && (save_recall == RECALL))
-                        {
-                            if(isPressed(&PORTB, SAVE_RECALL_PIN))
-                            {
-                                ++save_recall;
-                            }
-                            
-                            if(save_recall == 2)
-                            {
-                                    save_recall = SAVE;
-                            }
-                        }
-                        
-                        
-                        
-                        if(save_recall == RECALL)
-                        {
-                            setMinutesCtUp_temp = EEPROM_read(saved_pointer);
-                            ++saved_pointer;
-                            setSecondsCtUp_temp = EEPROM_read(saved_pointer);
-                            
-                            extractDigits(setSecondsCtUp_temp, setMinutesCtUp_temp);
-                            updateDigits();
-                            
-                            
-                            while((isPressed(&PORTB, OK_PIN) == 0) && (save_recall == RECALL))
-                            {
-                                if(isPressed(&PORTB, SAVE_RECALL_PIN))
-                                {
-                                    ++save_recall;
-                                }
-                                
-                                if(save_recall == 2)
-                                {
-                                    save_recall = SAVE;
-                                }
-                                
-                                
-                                if(isPressed(&PORTA, LEFT_MOVEMENT_PIN)) 
-                                {
-                                    saved_pointer = saved_pointer + 1;
-                                    if(saved_pointer > 6)
-                                    {
-                                        saved_pointer = 1;
-                                    }
-                                    setMinutesCtUp_temp = EEPROM_read(saved_pointer);
-                                    ++saved_pointer;
-                                    setSecondsCtUp_temp = EEPROM_read(saved_pointer);
-                                    
-                                    extractDigits(setSecondsCtUp_temp, setMinutesCtUp_temp);
-                                    updateDigits();
-                                }
-                                
-                            
-                                if(isPressed(&PORTB, RIGHT_MOVEMENT_PIN)) 
-                                {
-                                    saved_pointer = saved_pointer - 3;
-                                     if(saved_pointer > 6)
-                                    {
-                                        saved_pointer = 5;
-                                    }
-                                    setMinutesCtUp_temp = EEPROM_read(saved_pointer);
-                                    ++saved_pointer;
-                                    setSecondsCtUp_temp = EEPROM_read(saved_pointer);
-                                    
-                                    extractDigits(setSecondsCtUp_temp, setMinutesCtUp_temp);
-                                    updateDigits();
-                                } 
-                            }
-       
-                            if(save_recall == RECALL)
-                            {
-                                setMinutesCtUp = setMinutesCtUp_temp;
-                                setSecondsCtUp = setSecondsCtUp_temp;
-                            }
-                        }   
-                    }
-                }
                
                 // check run/ok button
                 if(isPressed(&PORTB, OK_PIN))
@@ -642,7 +528,7 @@ int main(void)
                 //get the digit place from the switch
                 if(isPressed(&PORTA, LEFT_MOVEMENT_PIN)) {
                     ++digit_place;
-                    if(digit_place == 5) {
+                    if(digit_place == DIGIT_ROLLBACK) {
                         digit_place = 1;
                     }
                 }
@@ -708,7 +594,9 @@ int main(void)
                 }
                 else if(setSecondsCtUp > 60) {      
                     setSecondsCtUp = extractDigitOnes(setSecondsCtUp);
-                }   
+                }
+               
+               
             }
             
             else if(subMode == RUN_MODE) {
@@ -747,6 +635,7 @@ int main(void)
                    
                     while(stopResumeFlag == RESUME_MODE) {
                         
+                        
                         if(ledState == TRUE)
                         {
                             PWM_on(BUZZER_PIN);
@@ -755,10 +644,13 @@ int main(void)
                         {
                             PWM_off(BUZZER_PIN);
                         }
+                        
+                        LATBbits.LATB1 = ledState;
+                        
                         updateDigits();     // When stop happened first, it will not display the last number.
                         if(isPressed(&PORTA, STOP_RESUME_PIN)) {
                             ++stopResumeFlag;
-                            if(stopResumeFlag == 2) {
+                            if(stopResumeFlag == STOP_RESUME_ROLLBACK) {
                                 stopResumeFlag = STOP_MODE;
                             }
                         }
@@ -819,7 +711,7 @@ int main(void)
                 //get the digit place from the switch
                 if(isPressed(&PORTA, LEFT_MOVEMENT_PIN)) {
                     ++digit_place;
-                    if(digit_place == 5) {
+                    if(digit_place == DIGIT_ROLLBACK) {
                         digit_place = 1;
                     }
                 }
@@ -934,7 +826,7 @@ int main(void)
                         updateDigits();
                         if(isPressed(&PORTA, STOP_RESUME_PIN)) {
                             ++stopResumeFlag;
-                            if(stopResumeFlag == 2) {
+                            if(stopResumeFlag == STOP_RESUME_ROLLBACK) {
                                 stopResumeFlag = STOP_MODE;
                             }
                         }

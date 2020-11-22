@@ -27,10 +27,11 @@ void startup_setup(void) {
     
     PWM_init(BUZZER_PIN);
     PWM_off(BUZZER_PIN);
-    //PWM_init(BACKLIGHT);
+    
+            
     enableInterrupt();
     
-    //EEPROM_WRITE(7, 1);
+    
 }
 
 
