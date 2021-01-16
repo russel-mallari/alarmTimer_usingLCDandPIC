@@ -1,8 +1,8 @@
-dist/
-debug/
-build/
-disassembly/
-src/test_module.c
-program_flow.txt
-docu.txt
-Revisions.txt
+main_controller/dist/
+main_controller/debug/
+main_controller/build/
+main_controller/disassembly/
+main_controller/src/test_module.c
+main_controller/program_flow.txt
+main_controller/docu.txt
+main_controller/Revisions.txt
