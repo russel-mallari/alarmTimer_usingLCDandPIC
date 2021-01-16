@@ -6,3 +6,8 @@ main_controller/src/test_module.c
 main_controller/program_flow.txt
 main_controller/docu.txt
 main_controller/Revisions.txt
+LCD_driver/dist/
+LCD_driver/debug/
+LCD_driver/build/
+LCD_driver/disassembly/
+
